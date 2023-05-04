@@ -1,0 +1,27 @@
+"C:\Program Files\JetBrains\CLion 2022.3.2\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2022.3.2/bin/ninja/win/x64/ninja.exe" -G Ninja -S "C:\Users\maluk\Downloads\A1 - Camera Calibration attached files 04 May, 2023 1439\A1_Calibration\A1_Calibration_Code" -B "C:\Users\maluk\Downloads\A1 - Camera Calibration attached files 04 May, 2023 1439\A1_Calibration\A1_Calibration_Code\cmake-build-debug"
+-- The C compiler identification is MSVC 19.34.31937.0
+-- The CXX compiler identification is MSVC 19.34.31937.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/bin/Hostx86/x86/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/bin/Hostx86/x86/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Easy3D: I'am working on a 32-bit Windows
+-- Found OpenGL: opengl32   
+-- OpenGL libraries: opengl32;glu32
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - not found
+-- Found Threads: TRUE  
+-- Using Win32 for window creation
+-- Configuring done
+-- Generating done
+-- Build files have been written to: C:/Users/maluk/Downloads/A1 - Camera Calibration attached files 04 May, 2023 1439/A1_Calibration/A1_Calibration_Code/cmake-build-debug
