@@ -68,6 +68,16 @@ bool Calibration::calibration(
                  "\t    - do NOT include the 'build' directory (which contains the intermediate files in a build step).\n"
                  "\t    - make sure your code compiles and can reproduce your results without ANY modification.\n\n" << std::flush;
 
+    /// Construct P matrix, 2nx12 fill in P and p
+
+    /// Solve for m
+
+    /// extract intrinsic
+
+    /// extract extrinsic
+
+    /// explicatly handle rho
+
     /// Below are a few examples showing some useful data structures and functions.
 
     // This is a 1D array of 'double' values. Alternatively, you can use 'double mat[25]' but you cannot change it
