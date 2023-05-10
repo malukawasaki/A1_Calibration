@@ -221,14 +221,16 @@ bool Calibration::calibration(
     //             should be very close to your input images points.
 
     //Creating an example Matrix called A to work on.
-    //TODO: SIMAY: change this matrix to the real one later.
+    //TODO: SIMAY: change this matrix with the real one later.
      const int m = 6, n = 5;
      Matrix A(m, n, array.data());    // 'array.data()' returns a pointer to the array.
-//    std::cout << "M: \n" << A << std::endl;
+     // Matrix CHECK
+     //  std::cout << "M: \n" << A << std::endl;
 
      /// matrix-vector product
      Vector3D v = A * Vector4D(1, 2, 3, 4); // A is m to n matrix, v is n-dimensional vector, so the result is m-dimensional vector.
-     // m is the number of rows of A, n is the number of columns of A.
+     // "m" is the number of rows of A, "n" is the number of columns of A.
+     // U and V are orthogonal matrices, S is a diagonal matrix.
      Matrix U(m, m, 0.0);   // initialized with 0s
      Matrix S(m, n, 0.0);   // initialized with 0s
      Matrix V(n, n, 0.0);   // initialized with 0s
@@ -236,32 +238,46 @@ bool Calibration::calibration(
      // Compute the SVD decomposition of A
      svd_decompose(A, U, S, V);
 
-    //Now let's check if the SVD result is correct.
-     // Check 1: U is orthogonal, so U * U^T must be identity
-        std::cout << "U*U^T: \n" << U * transpose(U) << std::endl;
+    //Now let's CHECK if the SVD result is correct.
+         // Check 1: U is orthogonal, so U * U^T must be identity
+            std::cout << "U*U^T: \n" << U * transpose(U) << std::endl;
 
-     // Check 2: V is orthogonal, so V * V^T must be identity
-        std::cout << "V*V^T: \n" << V * transpose(V) << std::endl;
+         // Check 2: V is orthogonal, so V * V^T must be identity
+            std::cout << "V*V^T: \n" << V * transpose(V) << std::endl;
 
-     // Check 3: S must be a diagonal matrix
-        std::cout << "S: \n" << S << std::endl;
+         // Check 3: S must be a diagonal matrix
+            std::cout << "S: \n" << S << std::endl;
 
-     // Check 4: according to the definition, A = U * S * V^T
-        std::cout << "M - U * S * V^T: \n" << A - U * S * transpose(V) << std::endl;
+         // Check 4: according to the definition, A = U * S * V^T
+            std::cout << "M - U * S * V^T: \n" << A - U * S * transpose(V) << std::endl;
 
-     // Compute the inverse of a matrix
+     // Compute the INVERSE of Matrix A
      Matrix invA;
      inverse(A, invA); // Inverse of Matrix A is stored in invA.
 
-     // Create an identity matrix with the same dimensions as A: B
-     Matrix B(m, n);
-     for (int i = 0; i < m; i++) {
-         for (int j = 0; j < n; j++) {
-             B(i, j) = (i == j) ? 1 : 0;
+         // Create an IDENTİTY MATRIX with the same dimensions as A: B
+         Matrix B(m, n);
+         for (int i = 0; i < m; i++) {
+             for (int j = 0; j < n; j++) {
+                 B(i, j) = (i == j) ? 1 : 0;
+             }
          }
-     }
-     // Let's check if the inverse is correct
+
+     // Let's CHECK if the inverse is correct
      std::cout << "Check if the inverse is correct: A * invA: \n" << B * invA << std::endl; //
+
+     //To obtain M from the SVD, need to use the following formula:
+
+     // M = K * [R, t] = U * [cos(theta), -sin(theta), 0, 0; sin(theta), cos(theta), 0, 0; 0, 0, 1, 0] * V^T
+
+         //Where K is the intrinsic camera matrix,
+         //R is the rotation matrix,
+         //t is the translation vector,
+         //theta is the rotation angle.
+
+     //NOTE: the matrix [cos(theta), -sin(theta), 0, 0; sin(theta), cos(theta), 0, 0; 0, 0, 1, 0] represents a rotation in the xy plane.
+
+
 
     // TODO: extract intrinsic parameters from M.
 
