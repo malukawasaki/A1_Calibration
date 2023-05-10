@@ -35,6 +35,14 @@ using namespace easy3d;
  *       You may define a few functions for some sub-tasks.
  * @return True on success, otherwise false. On success, the camera parameters are returned by
  */
+
+
+ /*The camera calibration function calibration() takes in two inputs: points_3d and points_2d, which are arrays of
+ 3D points and corresponding 2D image points, respectively.
+
+ The function outputs the camera intrinsic parameters
+ (focal length fx and fy, principal point coordinates cx and cy, and skew factor skew),
+  as well as the camera's rotation matrix R and translation vector t.*/
 bool Calibration::calibration(
         const std::vector<Vector3D>& points_3d, /// input: An array of 3D points.
         const std::vector<Vector2D>& points_2d, /// input: An array of 2D image points.
@@ -109,8 +117,8 @@ bool Calibration::calibration(
 
     // Define an m-by-n double valued matrix.
     // Here I use the above array to initialize it. You can also use A(i, j) to initialize/modify/access its elements.
-    const int m = 6, n = 5;
-    Matrix A(m, n, array.data());    // 'array.data()' returns a pointer to the array.
+//    const int m = 6, n = 5;
+ //   Matrix A(m, n, array.data());    // 'array.data()' returns a pointer to the array.
 //    std::cout << "M: \n" << A << std::endl;
 
     /// define a 3 by 4 matrix (and all elements initialized to 0.0)
@@ -123,7 +131,7 @@ bool Calibration::calibration(
     M.set_column(1, Vector3D(5.5, 5.5, 5.5));
 
     /// define a 3 by 3 matrix (and all elements initialized to 0.0)
-    Matrix33 B;
+   /* Matrix33 B;
 
     /// define and initialize a 3 by 3 matrix
     Matrix33 T(1.1, 2.2, 3.3,
@@ -154,17 +162,17 @@ bool Calibration::calibration(
 
     /// define a 3 by 3 identity matrix
     Matrix33 I = Matrix::identity(3, 3, 1.0);
-
+*/
     /// matrix-vector product
-    Vector3D v = M * Vector4D(1, 2, 3, 4); // M is 3 by 4
-
+ /*   Vector3D v = A * Vector4D(1, 2, 3, 4); // A is m to n matrix, v is n-dimensional vector, so the result is m-dimensional vector.
+    // m is the number of rows of A, n is the number of columns of A.
     Matrix U(m, m, 0.0);   // initialized with 0s
     Matrix S(m, n, 0.0);   // initialized with 0s
     Matrix V(n, n, 0.0);   // initialized with 0s
 
     // Compute the SVD decomposition of A
     svd_decompose(A, U, S, V);
-
+*/
     // Now let's check if the SVD result is correct
 
     // Check 1: U is orthogonal, so U * U^T must be identity
@@ -180,8 +188,8 @@ bool Calibration::calibration(
 //    std::cout << "M - U * S * V^T: \n" << A - U * S * transpose(V) << std::endl;
 
     // Compute the inverse of a matrix
-    Matrix invT;
-    inverse(T, invT);
+  //  Matrix invT;
+    // inverse(T, invT);
     // Let's check if the inverse is correct
 //    std::cout << "B * invB: \n" << B * invB << std::endl;
 
@@ -211,6 +219,49 @@ bool Calibration::calibration(
     // TODO: solve for M (the whole projection matrix, i.e., M = K * [R, t]) using SVD decomposition.
     //   Optional: you can check if your M is correct by applying M on the 3D points. If correct, the projected point
     //             should be very close to your input images points.
+
+    //Creating an example Matrix called A to work on.
+    //TODO: SIMAY: change this matrix to the real one later.
+     const int m = 6, n = 5;
+     Matrix A(m, n, array.data());    // 'array.data()' returns a pointer to the array.
+//    std::cout << "M: \n" << A << std::endl;
+
+     /// matrix-vector product
+     Vector3D v = A * Vector4D(1, 2, 3, 4); // A is m to n matrix, v is n-dimensional vector, so the result is m-dimensional vector.
+     // m is the number of rows of A, n is the number of columns of A.
+     Matrix U(m, m, 0.0);   // initialized with 0s
+     Matrix S(m, n, 0.0);   // initialized with 0s
+     Matrix V(n, n, 0.0);   // initialized with 0s
+
+     // Compute the SVD decomposition of A
+     svd_decompose(A, U, S, V);
+
+    //Now let's check if the SVD result is correct.
+     // Check 1: U is orthogonal, so U * U^T must be identity
+        std::cout << "U*U^T: \n" << U * transpose(U) << std::endl;
+
+     // Check 2: V is orthogonal, so V * V^T must be identity
+        std::cout << "V*V^T: \n" << V * transpose(V) << std::endl;
+
+     // Check 3: S must be a diagonal matrix
+        std::cout << "S: \n" << S << std::endl;
+
+     // Check 4: according to the definition, A = U * S * V^T
+        std::cout << "M - U * S * V^T: \n" << A - U * S * transpose(V) << std::endl;
+
+     // Compute the inverse of a matrix
+     Matrix invA;
+     inverse(A, invA); // Inverse of Matrix A is stored in invA.
+
+     // Create an identity matrix with the same dimensions as A: B
+     Matrix B(m, n);
+     for (int i = 0; i < m; i++) {
+         for (int j = 0; j < n; j++) {
+             B(i, j) = (i == j) ? 1 : 0;
+         }
+     }
+     // Let's check if the inverse is correct
+     std::cout << "Check if the inverse is correct: A * invA: \n" << B * invA << std::endl; //
 
     // TODO: extract intrinsic parameters from M.
 
