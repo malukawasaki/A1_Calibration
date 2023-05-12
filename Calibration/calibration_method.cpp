@@ -128,7 +128,7 @@ bool Calibration::calibration(
                0, 0, 1);
 
     /// define and initialize a 3 by 4 matrix
-    Matrix34 P(1.1, 2.2, 3.3, 0,
+    Matrix34 PQ(1.1, 2.2, 3.3, 0,
                0, 2.2, 3.3, 1,
                0, 0, 1, 1);
 
@@ -205,15 +205,23 @@ bool Calibration::calibration(
     // TODO: Clean these lines a bit
     std::cout <<"The size of points_3d is:" << points_3d.size() << std::endl;
     std::cout <<"The size of points_2d is:" << points_2d.size() << std::endl;
-    if (points_3d.size() == points_2d.size()) {
-        std::cout << "Sizes of 2D/3D points match. This operation is possible" << std::endl;
-        // Insert everything else here?
+    if (points_3d.size() != points_2d.size()) {
+        std::cout << "Sizes of 2D/3D points do not match. This operation is not possible" << std::endl;
     } else {
-        std::cout << "Sizes of 2D/3D points do not match. This operation is impossible" << std::endl;
+        std::cout << "Sizes of 2D/3D points match. This operation is possible" << std::endl;
+        //Insert everything else here?
     }
     // TODO: construct the P matrix (so P * m = 0).
 
-    // TODO: solve for M (the whole projection matrix, i.e., M = K * [R, t]) using SVD decomposition.
+   Matrix P(2*points_3d.size(), 12, 0.0);
+
+   for (int i = 0; i < points_2d.size(); i++) {
+       P.set_row(2*i,{points_3d[i].x(),points_3d[i].y(),points_3d[i].z(),1.,0.,0.,0.,0.,-(points_2d[i].x()*points_3d[i].x()),-(points_2d[i].x()*points_3d[i].y()),-(points_2d[i].x()*points_3d[i].z()),- points_2d[i].x()});
+       P.set_row(2*i+1,{0.,0.,0.,0.,points_3d[i].x(),points_3d[i].y(),points_3d[i].z(),1.,-(points_2d[i].y()*points_3d[i].x()),-(points_2d[i].y()*points_3d[i].y()),-(points_2d[i].y()*points_3d[i].z()),- points_2d[i].y()});
+   }
+   std::cout << P << std::endl;
+
+              // TODO: solve for M (the whole projection matrix, i.e., M = K * [R, t]) using SVD decomposition.
     //   Optional: you can check if your M is correct by applying M on the 3D points. If correct, the projected point
     //             should be very close to your input images points.
 
