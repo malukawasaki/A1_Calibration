@@ -91,8 +91,16 @@ bool Calibration::calibration(
                  "\t\t- t:         a 3D vector encoding camera location.\n"
                  "\tIMPORTANT: don't forget to write your recovered parameters to the above variables." << std::endl;
 
-    // TODO: check if input is valid (e.g., number of correspondences >= 6, sizes of 2D/3D points must match)
-
+    // Check if input is valid (e.g., number of correspondences >= 6, sizes of 2D/3D points must match)
+    // TODO: Clean these lines a bit
+    std::cout <<"The size of points_3d is:" << points_3d.size() << std::endl;
+    std::cout <<"The size of points_2d is:" << points_2d.size() << std::endl;
+    if (points_3d.size() == points_2d.size()) {
+        std::cout << "Sizes of 2D/3D points match. This operation is possible" << std::endl;
+        // Insert everything else here?
+    } else {
+        std::cout << "Sizes of 2D/3D points do not match. This operation is impossible" << std::endl;
+    }
     // TODO: construct the P matrix (so P * m = 0).
 
     // TODO: solve for M (the whole projection matrix, i.e., M = K * [R, t]) using SVD decomposition.
@@ -104,9 +112,9 @@ bool Calibration::calibration(
     //Matrix A is going to be size 2Nx12, where N is the number of points that you have
 
      const int m = 6, n = 12; /*must change "m" with the number of points we have*/
-     Matrix A(m, n, array.data());    // 'array.data()' returns a pointer to the array.
+     Matrix A(m, n);
      // Matrix CHECK
-     //  std::cout << "M: \n" << A << std::endl;
+     std::cout << "M: \n" << A << std::endl;
 
      // matrix-vector product
      Vector3D v = A * Vector4D(1, 2, 3, 4); // A is m to n matrix, v is n-dimensional vector, so the result is m-dimensional vector.
@@ -133,21 +141,6 @@ bool Calibration::calibration(
          // Check 4: according to the definition, A = U * S * V^T
             std::cout << "M - U * S * V^T: \n" << A - U * S * transpose(V) << std::endl;
 
-     // Compute the INVERSE of Matrix A
-     Matrix invA;
-     inverse(A, invA); // Inverse of Matrix A is stored in invA.
-
-         // Create an IDENTİTY MATRIX with the same dimensions as A: B
-         Matrix B(m, n);
-         for (int i = 0; i < m; i++) {
-             for (int j = 0; j < n; j++) {
-                 B(i, j) = (i == j) ? 1 : 0;
-             }
-         }
-
-     // Let's CHECK if the inverse is correct
-     std::cout << "Check if the inverse is correct: A * invA: \n" << B * invA << std::endl; //
-
      // Camera Matrix(M) is the last column of V, and you need to reshape to 3x4
         Matrix M(3, 4);
         for (int i = 0; i < 3; i++) {
@@ -158,8 +151,6 @@ bool Calibration::calibration(
 
         //Let's CHECK if the camera matrix is correct
         std::cout << "Camera Matrix(M): \n" << M << std::endl;
-
-
 
     // TODO: extract intrinsic parameters from M.
 
