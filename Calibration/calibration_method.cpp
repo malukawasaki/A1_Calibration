@@ -71,7 +71,7 @@ bool Calibration::calibration(
     // length. With 'std::vector', you can append/delete/insert elements, and much more. The 'std::vector' can store
     // not only 'double', but also any other types of objects. In case you may want to learn more about 'std::vector'
     // check here: https://en.cppreference.com/w/cpp/container/vector
-    std::vector<double> array = {1, 3, 3, 4, 7, 6, 2, 8, 2, 8, 3, 2, 4, 9, 1, 7, 3, 23, 2, 3, 5, 2, 1, 5, 8, 9, 22};
+   /* std::vector<double> array = {1, 3, 3, 4, 7, 6, 2, 8, 2, 8, 3, 2, 4, 9, 1, 7, 3, 23, 2, 3, 5, 2, 1, 5, 8, 9, 22};
     array.push_back(5); // append 5 to the array (so the size will increase by 1).
     array.insert(array.end(), 10, 3);  // append ten 3 (so the size will grow by 10).
 
@@ -178,7 +178,7 @@ bool Calibration::calibration(
 
     // Compute the inverse of a matrix
     Matrix invT;
-    inverse(T, invT);
+    inverse(T, invT);*/
     // Let's check if the inverse is correct
 //    std::cout << "B * invB: \n" << B * invB << std::endl;
 
@@ -202,28 +202,46 @@ bool Calibration::calibration(
                  "\tIMPORTANT: don't forget to write your recovered parameters to the above variables." << std::endl;
 
     // Check if input is valid (e.g., number of correspondences >= 6, sizes of 2D/3D points must match)
-    std::cout <<"The size of points_3d is:" << points_3d.size() << std::endl;
-    std::cout <<"The size of points_2d is:" << points_2d.size() << std::endl;
-    if (points_3d.size() != points_2d.size() or points_2d.size() < 6 or points_3d.size() < 6) {
+    if (points_3d.size() != points_2d.size()) {
         std::cout << "Sizes of 2D/3D points do not match. This operation is not possible" << std::endl;
     } else {
         std::cout << "Sizes of 2D/3D points match. This operation is possible" << std::endl;
         //Insert everything else here?
     }
 
-    // Construct the P matrix (so P * m = 0).
-   Matrix P(2*points_3d.size(), 12, 0.0);
+    /// Construct the P matrix (so P * m = 0).
+    Matrix P (2*points_3d.size(), 12, 0.0);
 
-   for (int i = 0; i < points_2d.size(); i++) {
+    for (int i = 0; i < points_2d.size(); i++) {
        P.set_row(2*i,{points_3d[i].x(),points_3d[i].y(),points_3d[i].z(),1.,0.,0.,0.,0.,-(points_2d[i].x()*points_3d[i].x()),-(points_2d[i].x()*points_3d[i].y()),-(points_2d[i].x()*points_3d[i].z()),- points_2d[i].x()});
        P.set_row(2*i+1,{0.,0.,0.,0.,points_3d[i].x(),points_3d[i].y(),points_3d[i].z(),1.,-(points_2d[i].y()*points_3d[i].x()),-(points_2d[i].y()*points_3d[i].y()),-(points_2d[i].y()*points_3d[i].z()),- points_2d[i].y()});
    }
    // Check the matrix:
    // std::cout << P << std::endl;
 
-              // TODO: solve for M (the whole projection matrix, i.e., M = K * [R, t]) using SVD decomposition.
-    //   Optional: you can check if your M is correct by applying M on the 3D points. If correct, the projected point
-    //             should be very close to your input images points.
+   /// Solve for M (the whole projection matrix, i.e., M = K * [R, t]) using SVD decomposition.
+
+    // U and V are orthogonal matrices, S is a diagonal matrix.
+
+    Matrix U(12., 12.);   // initialized with 0s
+    Matrix S(12., 12.);   // initialized with 0s
+    Matrix V(12., 12.);   // initialized with 0s
+
+    Matrix M (3., 4.);
+
+    svd_decompose(P, U, S, V);
+
+    // Populating M with the last column of V.
+    int col_index = 11;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++) {
+            M(i,j) = V(i*4 + j, col_index);
+        }
+    }
+
+    //Check if the camera matrix is correct:
+    // std::cout << "Camera Matrix(M): \n" << M << std::endl;
+
 
     // TODO: extract intrinsic parameters from M.
 
@@ -232,7 +250,7 @@ bool Calibration::calibration(
     std::cout << "\n\tTODO: After you implement this function, please return 'true' - this will trigger the viewer to\n"
                  "\t\tupdate the rendering using your recovered camera parameters. This can help you to visually check\n"
                  "\t\tif your calibration is successful or not.\n\n" << std::flush;
-    return false;
+    return true;
 }
 
 
