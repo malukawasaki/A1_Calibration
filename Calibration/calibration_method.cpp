@@ -202,24 +202,24 @@ bool Calibration::calibration(
                  "\tIMPORTANT: don't forget to write your recovered parameters to the above variables." << std::endl;
 
     // Check if input is valid (e.g., number of correspondences >= 6, sizes of 2D/3D points must match)
-    // TODO: Clean these lines a bit
     std::cout <<"The size of points_3d is:" << points_3d.size() << std::endl;
     std::cout <<"The size of points_2d is:" << points_2d.size() << std::endl;
-    if (points_3d.size() != points_2d.size()) {
+    if (points_3d.size() != points_2d.size() or points_2d.size() < 6 or points_3d.size() < 6) {
         std::cout << "Sizes of 2D/3D points do not match. This operation is not possible" << std::endl;
     } else {
         std::cout << "Sizes of 2D/3D points match. This operation is possible" << std::endl;
         //Insert everything else here?
     }
-    // TODO: construct the P matrix (so P * m = 0).
 
+    // Construct the P matrix (so P * m = 0).
    Matrix P(2*points_3d.size(), 12, 0.0);
 
    for (int i = 0; i < points_2d.size(); i++) {
        P.set_row(2*i,{points_3d[i].x(),points_3d[i].y(),points_3d[i].z(),1.,0.,0.,0.,0.,-(points_2d[i].x()*points_3d[i].x()),-(points_2d[i].x()*points_3d[i].y()),-(points_2d[i].x()*points_3d[i].z()),- points_2d[i].x()});
        P.set_row(2*i+1,{0.,0.,0.,0.,points_3d[i].x(),points_3d[i].y(),points_3d[i].z(),1.,-(points_2d[i].y()*points_3d[i].x()),-(points_2d[i].y()*points_3d[i].y()),-(points_2d[i].y()*points_3d[i].z()),- points_2d[i].y()});
    }
-   std::cout << P << std::endl;
+   // Check the matrix:
+   // std::cout << P << std::endl;
 
               // TODO: solve for M (the whole projection matrix, i.e., M = K * [R, t]) using SVD decomposition.
     //   Optional: you can check if your M is correct by applying M on the 3D points. If correct, the projected point
