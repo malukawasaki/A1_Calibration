@@ -25,10 +25,7 @@
 #include "calibration.h"
 #include "matrix_algo.h"
 
-
 using namespace easy3d;
-
-
 
 /**
  * TODO: Finish this function for calibrating a camera from the corresponding 3D-2D point pairs.
@@ -204,8 +201,16 @@ bool Calibration::calibration(
                  "\t\t- t:         a 3D vector encoding camera location.\n"
                  "\tIMPORTANT: don't forget to write your recovered parameters to the above variables." << std::endl;
 
-    // TODO: check if input is valid (e.g., number of correspondences >= 6, sizes of 2D/3D points must match)
-
+    // Check if input is valid (e.g., number of correspondences >= 6, sizes of 2D/3D points must match)
+    // TODO: Clean these lines a bit
+    std::cout <<"The size of points_3d is:" << points_3d.size() << std::endl;
+    std::cout <<"The size of points_2d is:" << points_2d.size() << std::endl;
+    if (points_3d.size() == points_2d.size()) {
+        std::cout << "Sizes of 2D/3D points match. This operation is possible" << std::endl;
+        // Insert everything else here?
+    } else {
+        std::cout << "Sizes of 2D/3D points do not match. This operation is impossible" << std::endl;
+    }
     // TODO: construct the P matrix (so P * m = 0).
 
     // TODO: solve for M (the whole projection matrix, i.e., M = K * [R, t]) using SVD decomposition.
@@ -221,6 +226,7 @@ bool Calibration::calibration(
                  "\t\tif your calibration is successful or not.\n\n" << std::flush;
     return false;
 }
+
 
 
 
