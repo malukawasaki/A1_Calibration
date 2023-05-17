@@ -124,7 +124,6 @@ bool Calibration::calibration(
 
         //Calculate intrinsic parameters
         double Ro_positive = 1 / a3.length();
-        std::cout << Ro_positive << std::endl;
         double Ro_negative = - 1 / a3.length();
         cx = pow(Ro_positive,2)*(dot(a1, a3));
         cy = pow(Ro_positive, 2)*(dot(a2, a3));
@@ -182,21 +181,3 @@ bool Calibration::calibration(
         return true;
         }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
