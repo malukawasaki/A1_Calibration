@@ -89,10 +89,13 @@ bool Calibration::calibration(
        //P * M = 0
        // U and V are orthogonal matrices, S is a diagonal matrix.
 
+        int n_cols = P.cols();
+        int n_rows = P.rows();
+
         /// Solve for M (the whole projection matrix, i.e., M = K * [R, t]) using SVD decomposition.
-        Matrix U(12., 12.);   // initialized with 0s
-        Matrix S(12., 12.);   // initialized with 0s
-        Matrix V(12., 12.);   // initialized with 0s
+        Matrix U(n_rows, n_rows);   // initialized with 0s
+        Matrix S(n_rows, n_cols);   // initialized with 0s
+        Matrix V(n_cols, n_cols);   // initialized with 0s
 
         Matrix M (3., 4.);
 
