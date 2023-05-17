@@ -244,7 +244,7 @@ bool Calibration::calibration(
         }
 
         //Check if the camera matrix is correct:
-         std::cout << "Camera Matrix(M): \n" << M << std::endl;
+        //std::cout << "Camera Matrix(M): \n" << M << std::endl;
 
 
         // TODO: extract intrinsic parameters from M.
