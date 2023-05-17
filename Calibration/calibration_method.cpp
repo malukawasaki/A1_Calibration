@@ -201,56 +201,115 @@ bool Calibration::calibration(
                  "\t\t- t:         a 3D vector encoding camera location.\n"
                  "\tIMPORTANT: don't forget to write your recovered parameters to the above variables." << std::endl;
 
-    // Check if input is valid (e.g., number of correspondences >= 6, sizes of 2D/3D points must match)
+    /// Check if input is valid (e.g., number of correspondences >= 6, sizes of 2D/3D points must match)
     if (points_3d.size() != points_2d.size()) {
-        std::cout << "Sizes of 2D/3D points do not match. This operation is not possible" << std::endl;
-    } else {
-        std::cout << "Sizes of 2D/3D points match. This operation is possible" << std::endl;
-        //Insert everything else here?
+        std::cout << "Sizes of 2D/3D points do not match or the number of correspondences is smaller than 6. This operation is not possible" << std::endl;
+        return false;
     }
 
-    /// Construct the P matrix (so P * m = 0).
-    Matrix P (2*points_3d.size(), 12, 0.0);
+    else {
+        std::cout << "Sizes of 2D/3D points match and are greater or equal to 6. This operation is possible"
+                  << std::endl;
 
-    for (int i = 0; i < points_2d.size(); i++) {
-       P.set_row(2*i,{points_3d[i].x(),points_3d[i].y(),points_3d[i].z(),1.,0.,0.,0.,0.,-(points_2d[i].x()*points_3d[i].x()),-(points_2d[i].x()*points_3d[i].y()),-(points_2d[i].x()*points_3d[i].z()),- points_2d[i].x()});
-       P.set_row(2*i+1,{0.,0.,0.,0.,points_3d[i].x(),points_3d[i].y(),points_3d[i].z(),1.,-(points_2d[i].y()*points_3d[i].x()),-(points_2d[i].y()*points_3d[i].y()),-(points_2d[i].y()*points_3d[i].z()),- points_2d[i].y()});
-   }
-   // Check the matrix:
-   // std::cout << P << std::endl;
+    }
 
-   /// Solve for M (the whole projection matrix, i.e., M = K * [R, t]) using SVD decomposition.
+        /// Construct the P matrix (so P * m = 0).
+        Matrix P (2*points_3d.size(), 12, 0.0);
 
-    // U and V are orthogonal matrices, S is a diagonal matrix.
+        for (int i = 0; i < points_2d.size(); i++) {
+           P.set_row(2*i,{points_3d[i].x(),points_3d[i].y(),points_3d[i].z(),1.,0.,0.,0.,0.,-(points_2d[i].x()*points_3d[i].x()),-(points_2d[i].x()*points_3d[i].y()),-(points_2d[i].x()*points_3d[i].z()),- points_2d[i].x()});
+           P.set_row(2*i+1,{0.,0.,0.,0.,points_3d[i].x(),points_3d[i].y(),points_3d[i].z(),1.,-(points_2d[i].y()*points_3d[i].x()),-(points_2d[i].y()*points_3d[i].y()),-(points_2d[i].y()*points_3d[i].z()),- points_2d[i].y()});
+       }
+        //Check if the P matrix is correct:
+        // std::cout << "P Matrix: \n" << P << std::endl;
 
-    Matrix U(12., 12.);   // initialized with 0s
-    Matrix S(12., 12.);   // initialized with 0s
-    Matrix V(12., 12.);   // initialized with 0s
+       //P * M = 0
+       // U and V are orthogonal matrices, S is a diagonal matrix.
 
-    Matrix M (3., 4.);
+        /// Solve for M (the whole projection matrix, i.e., M = K * [R, t]) using SVD decomposition.
+        Matrix U(12., 12.);   // initialized with 0s
+        Matrix S(12., 12.);   // initialized with 0s
+        Matrix V(12., 12.);   // initialized with 0s
 
-    svd_decompose(P, U, S, V);
+        Matrix M (3., 4.);
 
-    // Populating M with the last column of V.
-    int col_index = 11;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 4; j++) {
-            M(i,j) = V(i*4 + j, col_index);
+        svd_decompose(P, U, S, V);
+
+        // Populating M with the last column of V.
+        int col_index = 11;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
+                M(i,j) = V(i*4 + j, col_index);
+            }
         }
-    }
 
-    //Check if the camera matrix is correct:
-    // std::cout << "Camera Matrix(M): \n" << M << std::endl;
+        //Check if the camera matrix is correct:
+         std::cout << "Camera Matrix(M): \n" << M << std::endl;
 
 
-    // TODO: extract intrinsic parameters from M.
+        // TODO: extract intrinsic parameters from M.
 
-    // TODO: extract extrinsic parameters from M.
+       // pi = K [R t] Pi = MPi
 
-    std::cout << "\n\tTODO: After you implement this function, please return 'true' - this will trigger the viewer to\n"
-                 "\t\tupdate the rendering using your recovered camera parameters. This can help you to visually check\n"
-                 "\t\tif your calibration is successful or not.\n\n" << std::flush;
-    return true;
+       // Mu = [A b] where A and b values corresponds to the ones in M.
+       // Values in A correspond to the three first columns in M.
+        Vector3D a1(M[0][0],M[0][1],M[0][2]);
+        Vector3D a2(M[1][0],M[1][1],M[1][2]);
+        Vector3D a3(M[2][0],M[2][1],M[2][2]);
+
+        // Values in b correspond to the last column in M.
+        Vector3D b = {M[0][3], M[1][3], M[2][3]};
+
+        std::cout<<b<<std::endl;
+
+        //Calculate intrinsic parameters
+        // TODO Where do we find theta?
+
+        double Ro_positive = 1 / a3.length();
+        std::cout << Ro_positive << std::endl;
+        double Ro_negative = - 1 / a3.length();
+        cx = pow(Ro_positive,2)*(dot(a1, a3));
+        cy = pow(Ro_positive, 2)*(dot(a2, a3));
+        double cos_theta = dot((cross(a1, a3)),(cross(a2,a3))) / (cross(a1,a3).length() * cross(a2,a3).length());
+        double sin_theta = sqrt(1 - pow(cos_theta,2));
+
+        fx = pow(Ro_positive,2) * cross(a1,a3).length() * sin_theta;
+        double beta = pow(Ro_positive,2) * cross(a2,a3).length() * sin_theta;
+
+        skew = - fx * (cos_theta/sin_theta);
+        fy = beta / sin_theta;
+
+        //Calculate extrinsic parameters
+        // TODO How to deal with Ro positive or negative?
+        // Vector r1 = cross(a2,a3)/cross(a2,a3).length();
+        // double r2 = cross(r3,r1);
+        // Vector r3_Ropositive = Ro_positive * a3;
+        // Vector r3_Ronegative = Ro_negative * a3;
+        // double t_Ropositive = Ro_positive * pow(K, -1) * b;
+
+
+        std::cout << "fx: \n" << fx << std::endl;
+        std::cout << "s: \n" << skew << std::endl;
+        std::cout << "fy: \n" << fy << std::endl;
+        std::cout << "cx: \n" << cx << std::endl;
+        std::cout << "cy: \n" << cy << std::endl;
+
+        Matrix K(3, 3);
+        K[0][0] = fx;
+        K[0][1] = skew;
+        K[0][2] = cx;
+        K[1][1] = fy;
+        K[1][2] = cy;
+        K[2][2] = 1.0;
+
+        std::cout << "K matrix is:" << K << std::endl;
+
+        // TODO: extract extrinsic parameters from M.
+
+        std::cout << "\n\tTODO: After you implement this function, please return 'true' - this will trigger the viewer to\n"
+                     "\t\tupdate the rendering using your recovered camera parameters. This can help you to visually check\n"
+                     "\t\tif your calibration is successful or not.\n\n" << std::flush;
+        return true;
 }
 
 
